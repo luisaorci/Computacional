@@ -21,7 +21,7 @@
 
 \section*{Descripción de la actividad}
 
-Para esta actividad se nos pidió leer y explorar un manual de Maxima. \\
+Para esta actividad se nos pidió leer y explorar el manual $Multivariable$ $Calculus$ $with$ $Maxima$\cite{2}.  \\
  
 Maxima es un sistema de álgebra computcional, se especializa en operaciones simbólicas. \cite{1} En Maxima se pueden realizar expansiones de series de Taylor, transformadas de Laplace, también puede resolver matrices, sistemas de ecuaciones líneales, ecuaciones diferenciales, entre otros. \\
 Para saber utilizar Maxima fue necesario hacer los ejercicios que venían propuestos en el manual, solo que le modificamos los colores y las funciones. \\
@@ -176,7 +176,7 @@ Utilizando esta definición, pudimos obtener los componentes para calcularla:
 
 \section{Funciones de varias variables}
 
-\section*{Derivadas parciales}
+\subsection{Derivadas parciales}
 Se propuso una función  de varias variables y calculamos su derivada parcial con el comando utilizado para calcular una derivada total, la diferencia fue que ahora se le especificó a Maxima con respecto a que variable se quería operar.
 
 \begin{verbatim}
@@ -374,11 +374,482 @@ En esta sección se calcularon los valores extremos de una superficie que estaba
 (%i8) 
 \end{verbatim}
 
+\section{Integración múltiple}
+
+\subsection{Integrales dobles}
+Aquí le proporcionamos una función a Maxima y doblando el comando predeterminado para integrar, Maxima calculó la doble integral de esta función y quedó lo siguiente:
+
+\begin{verbatim}
+(%i1) f(x,y) := x^4 - 4*x*y;
+                                         4
+(%o1)                        f(x, y) := x  - 4 x y
+(%i2) integrate(integrate(f(x,y), y), x);
+                                  5
+                                 x  y    2  2
+(%o2)                            ---- - x  y
+                                  5
+(%i3) integrate(integrate(f(x,y), y, x^1/2, 2-x), x, 0, 1);
+                                       187
+(%o3)                                - ---
+                                       120
+(%i4) 
+\end{verbatim}
+
+\subsection{Integración en coordenadas polares}
+En cursos como Cálculo III y Cálculo IV, nos hemos encontrado con funciones de dos variables, las cuales podemos integrar mediante la parametrización en coordenadas polares de ellas, a veces esto puede resultar un poco tedioso, pero con Maxima resultó ser muy sencillo, y fue de la siguiente manera: 
+
+\begin{verbatim}
+(%i1) f(x,y) := x^2 + y^2;
+                                          2    2
+(%o1)                         f(x, y) := x  + y
+(%i2) [x,y]: [r*cos(theta), r*sin(theta)];
+(%o2)                    [r cos(theta), r sin(theta)]
+(%i3) integrate(integrate(f(x,y)*r, r, 0, 2*cos(theta)), theta, -%pi/2, %pi/2);
+                                     3 %pi
+(%o3)                                -----
+                                       2
+(%i4) 
+\end{verbatim}
+
+\subsection{Integrales triples}
+Esta sección es casi el ejemplo ideal de como Maxima es una gran herramienta matemática, ya que reduce el integrar una integral triple a un "solo renglón" y puede ser de gran ayuda en un curso de Cálculo III o Cálculo IV. A partir del manual, así quedó el ejemplo de resolver una integral triple con Maxima:
+
+\begin{verbatim}
+(%i1) integrate(integrate(integrate(x^3*y*z,z,0,x+y), y,0,-x), x,0,1);
+                                       1
+(%o1)                                 ---
+                                      192
+(%i2) 
+\end{verbatim}
+
+\subsection{Integrales en Coordenadas esféricas y cilíndricas}
+Esta sección es muy parecida a la de integración en coordenadas polares, la diferencia es que se utiliza una parametrización distinta, pero la idea es la misma, y una vez mas, Maxima nos ayudó a realizar esta integración de una forma rápida y sin problemas;\\
+
+Coordenadas cilíndricas:
+
+\begin{verbatim}
+(%i1) f(x,y,z) := (y+x)*z;
+(%o1)                       f(x, y, z) := (y + x) z
+(%i2) [x,y,z] : [r*cos(theta), r*sin(theta), z];
+(%o2)                   [r cos(theta), r sin(theta), z]
+(%i3) integrate(integrate(integrate(f(x,y,z)*r, z,0,3), r,0,2), theta,0,%pi);
+(%o3)                                 24
+(%i4) 
+\end{verbatim}
+
+Coordenadas esféricas:
+
+\begin{verbatim}
+(%i1) f(x,y,z) := x*z;
+(%o1)                          f(x, y, z) := x z
+(%i2) [x,y,z] : [rho*sin(phi)*cos(theta), rho*sin(phi)*sin(theta), rho*cos(theta)];
+(%o2) [sin(phi) rho cos(theta), sin(phi) rho sin(theta), rho cos(theta)]
+(%i3) integrate(integrate(integrate(f(x,y,z)*rho^2*sin(phi),rho,0,1),theta,0,%pi),phi,0,%pi/2);
+                                        2
+                                     %pi
+(%o3)                                ----
+                                      40
+(%i4) 
+\end{verbatim}
+
+
+\subsection{Cambio de variable}
+
+Aquí utilizamos el teorema de integración de cambio de variable, visto previamente en el curso de Cálculo IV: 
+$$ \int\int_R f(x, y)dxdy = \int\int_s f(g(u, v), h(u, v)) \begin{vmatrix}
+d(x, y) \\ d(u, v)
+\end{vmatrix}dudv $$
+El código quedó así:
+
+\begin{verbatim}
+(%i1) f(x,y) := x+y;
+(%o1)                          f(x, y) := x + y
+(%i2) [x,y]: [u^3 - v^4, 5*u*v];
+                                 3    4
+(%o2)                          [u  - v , 5 u v]
+(%i3) J: jacobian([x,y], [u,v]);
+                               [    2       3 ]
+(%o3)                          [ 3 u   - 4 v  ]
+                               [              ]
+                               [ 5 v    5 u   ]
+(%i4) J: determinant(J);
+                                     4       3
+(%o4)                            20 v  + 15 u
+(%i5) integrate(integrate(f(x,y)*J, u,1,2), v,3,4);
+                                    113349305
+(%o5)                             - ---------
+                                       252
+(%i6) 
+\end{verbatim}
+
+
+\section{Cálculo vectorial}
+
+\subsection{Campo vectorial}
+Aquí tuvimos que graficar campos vectoriales, para lograr esto partimos de una función modificada mediante algunos comandos de Maxima y así se puede graficar como campo vectorial: 
+
+\begin{verbatim}
+(%i1) load(draw);
+(%o1)            /usr/share/maxima/5.21.1/share/draw/draw.lisp
+(%i2) F(x,y):=[cos(y), x];
+(%o2)                       F(x, y) := [cos(y), x]
+(%i3) coord:setify(makelist(k,k,-6,6));
+(%o3)         {- 6, - 5, - 4, - 3, - 2, - 1, 0, 1, 2, 3, 4, 5, 6}
+(%i4) points2d:listify(cartesian_product(coord, coord));
+(%o4) [[- 6, - 6], [- 6, - 5], [- 6, - 4], [- 6, - 3], [- 6, - 2], [- 6, - 1], 
+[- 6, 0], [- 6, 1], [- 6, 2], [- 6, 3], [- 6, 4], [- 6, 5], [- 6, 6], 
+[- 5, - 6], [- 5, - 5], [- 5, - 4], [- 5, - 3], [- 5, - 2], [- 5, - 1], 
+[- 5, 0], [- 5, 1], [- 5, 2], [- 5, 3], [- 5, 4], [- 5, 5], [- 5, 6], 
+[- 4, - 6], [- 4, - 5], [- 4, - 4], [- 4, - 3], [- 4, - 2], [- 4, - 1], 
+[- 4, 0], [- 4, 1], [- 4, 2], [- 4, 3], [- 4, 4], [- 4, 5], [- 4, 6], 
+[- 3, - 6], [- 3, - 5], [- 3, - 4], [- 3, - 3], [- 3, - 2], [- 3, - 1], 
+[- 3, 0], [- 3, 1], [- 3, 2], [- 3, 3], [- 3, 4], [- 3, 5], [- 3, 6], 
+[- 2, - 6], [- 2, - 5], [- 2, - 4], [- 2, - 3], [- 2, - 2], [- 2, - 1], 
+[- 2, 0], [- 2, 1], [- 2, 2], [- 2, 3], [- 2, 4], [- 2, 5], [- 2, 6], 
+[- 1, - 6], [- 1, - 5], [- 1, - 4], [- 1, - 3], [- 1, - 2], [- 1, - 1], 
+[- 1, 0], [- 1, 1], [- 1, 2], [- 1, 3], [- 1, 4], [- 1, 5], [- 1, 6], 
+[0, - 6], [0, - 5], [0, - 4], [0, - 3], [0, - 2], [0, - 1], [0, 0], [0, 1], 
+[0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [1, - 6], [1, - 5], [1, - 4], 
+[1, - 3], [1, - 2], [1, - 1], [1, 0], [1, 1], [1, 2], [1, 3], [1, 4], [1, 5], 
+[1, 6], [2, - 6], [2, - 5], [2, - 4], [2, - 3], [2, - 2], [2, - 1], [2, 0], 
+[2, 1], [2, 2], [2, 3], [2, 4], [2, 5], [2, 6], [3, - 6], [3, - 5], [3, - 4], 
+[3, - 3], [3, - 2], [3, - 1], [3, 0], [3, 1], [3, 2], [3, 3], [3, 4], [3, 5], 
+[3, 6], [4, - 6], [4, - 5], [4, - 4], [4, - 3], [4, - 2], [4, - 1], [4, 0], 
+[4, 1], [4, 2], [4, 3], [4, 4], [4, 5], [4, 6], [5, - 6], [5, - 5], [5, - 4], 
+[5, - 3], [5, - 2], [5, - 1], [5, 0], [5, 1], [5, 2], [5, 3], [5, 4], [5, 5], 
+[5, 6], [6, - 6], [6, - 5], [6, - 4], [6, - 3], [6, - 2], [6, - 1], [6, 0], 
+[6, 1], [6, 2], [6, 3], [6, 4], [6, 5], [6, 6]]
+(%i5) vf2d(x,y):=vector([x,y], [cos(y), x]/6);
+                                                [cos(y), x]
+(%o5)              vf2d(x, y) := vector([x, y], -----------)
+                                                     6
+(%i6) vect2:makelist(vf2d(k[1],k[2]),k,points2d);
+                           cos(6)                             cos(5)
+(%o6) [vector([- 6, - 6], [------, - 1]), vector([- 6, - 5], [------, - 1]), 
+                             6                                  6
+                    cos(4)                             cos(3)
+vector([- 6, - 4], [------, - 1]), vector([- 6, - 3], [------, - 1]), 
+                      6                                  6
+                    cos(2)                             cos(1)
+vector([- 6, - 2], [------, - 1]), vector([- 6, - 1], [------, - 1]), 
+                      6                                  6
+                  1                           cos(1)
+vector([- 6, 0], [-, - 1]), vector([- 6, 1], [------, - 1]), 
+                  6                             6
+                  cos(2)                           cos(3)
+vector([- 6, 2], [------, - 1]), vector([- 6, 3], [------, - 1]), 
+                    6                                6
+                  cos(4)                           cos(5)
+vector([- 6, 4], [------, - 1]), vector([- 6, 5], [------, - 1]), 
+                    6                                6
+                  cos(6)                             cos(6)    5
+vector([- 6, 6], [------, - 1]), vector([- 5, - 6], [------, - -]), 
+                    6                                  6       6
+                    cos(5)    5                        cos(4)    5
+vector([- 5, - 5], [------, - -]), vector([- 5, - 4], [------, - -]), 
+                      6       6                          6       6
+                    cos(3)    5                        cos(2)    5
+vector([- 5, - 3], [------, - -]), vector([- 5, - 2], [------, - -]), 
+                      6       6                          6       6
+                    cos(1)    5                      1    5
+vector([- 5, - 1], [------, - -]), vector([- 5, 0], [-, - -]), 
+                      6       6                      6    6
+                  cos(1)    5                      cos(2)    5
+vector([- 5, 1], [------, - -]), vector([- 5, 2], [------, - -]), 
+                    6       6                        6       6
+                  cos(3)    5                      cos(4)    5
+vector([- 5, 3], [------, - -]), vector([- 5, 4], [------, - -]), 
+                    6       6                        6       6
+                  cos(5)    5                      cos(6)    5
+vector([- 5, 5], [------, - -]), vector([- 5, 6], [------, - -]), 
+                    6       6                        6       6
+                    cos(6)    2                        cos(5)    2
+vector([- 4, - 6], [------, - -]), vector([- 4, - 5], [------, - -]), 
+                      6       3                          6       3
+                    cos(4)    2                        cos(3)    2
+vector([- 4, - 4], [------, - -]), vector([- 4, - 3], [------, - -]), 
+                      6       3                          6       3
+                    cos(2)    2                        cos(1)    2
+vector([- 4, - 2], [------, - -]), vector([- 4, - 1], [------, - -]), 
+                      6       3                          6       3
+                  1    2                      cos(1)    2
+vector([- 4, 0], [-, - -]), vector([- 4, 1], [------, - -]), 
+                  6    3                        6       3
+                  cos(2)    2                      cos(3)    2
+vector([- 4, 2], [------, - -]), vector([- 4, 3], [------, - -]), 
+                    6       3                        6       3
+                  cos(4)    2                      cos(5)    2
+vector([- 4, 4], [------, - -]), vector([- 4, 5], [------, - -]), 
+                    6       3                        6       3
+                  cos(6)    2                        cos(6)    1
+vector([- 4, 6], [------, - -]), vector([- 3, - 6], [------, - -]), 
+                    6       3                          6       2
+                    cos(5)    1                        cos(4)    1
+vector([- 3, - 5], [------, - -]), vector([- 3, - 4], [------, - -]), 
+                      6       2                          6       2
+                    cos(3)    1                        cos(2)    1
+vector([- 3, - 3], [------, - -]), vector([- 3, - 2], [------, - -]), 
+                      6       2                          6       2
+                    cos(1)    1                      1    1
+vector([- 3, - 1], [------, - -]), vector([- 3, 0], [-, - -]), 
+                      6       2                      6    2
+                  cos(1)    1                      cos(2)    1
+vector([- 3, 1], [------, - -]), vector([- 3, 2], [------, - -]), 
+                    6       2                        6       2
+                  cos(3)    1                      cos(4)    1
+vector([- 3, 3], [------, - -]), vector([- 3, 4], [------, - -]), 
+                    6       2                        6       2
+                  cos(5)    1                      cos(6)    1
+vector([- 3, 5], [------, - -]), vector([- 3, 6], [------, - -]), 
+                    6       2                        6       2
+                    cos(6)    1                        cos(5)    1
+vector([- 2, - 6], [------, - -]), vector([- 2, - 5], [------, - -]), 
+                      6       3                          6       3
+                    cos(4)    1                        cos(3)    1
+vector([- 2, - 4], [------, - -]), vector([- 2, - 3], [------, - -]), 
+                      6       3                          6       3
+                    cos(2)    1                        cos(1)    1
+vector([- 2, - 2], [------, - -]), vector([- 2, - 1], [------, - -]), 
+                      6       3                          6       3
+                  1    1                      cos(1)    1
+vector([- 2, 0], [-, - -]), vector([- 2, 1], [------, - -]), 
+                  6    3                        6       3
+                  cos(2)    1                      cos(3)    1
+vector([- 2, 2], [------, - -]), vector([- 2, 3], [------, - -]), 
+                    6       3                        6       3
+                  cos(4)    1                      cos(5)    1
+vector([- 2, 4], [------, - -]), vector([- 2, 5], [------, - -]), 
+                    6       3                        6       3
+                  cos(6)    1                        cos(6)    1
+vector([- 2, 6], [------, - -]), vector([- 1, - 6], [------, - -]), 
+                    6       3                          6       6
+                    cos(5)    1                        cos(4)    1
+vector([- 1, - 5], [------, - -]), vector([- 1, - 4], [------, - -]), 
+                      6       6                          6       6
+                    cos(3)    1                        cos(2)    1
+vector([- 1, - 3], [------, - -]), vector([- 1, - 2], [------, - -]), 
+                      6       6                          6       6
+                    cos(1)    1                      1    1
+vector([- 1, - 1], [------, - -]), vector([- 1, 0], [-, - -]), 
+                      6       6                      6    6
+                  cos(1)    1                      cos(2)    1
+vector([- 1, 1], [------, - -]), vector([- 1, 2], [------, - -]), 
+                    6       6                        6       6
+                  cos(3)    1                      cos(4)    1
+vector([- 1, 3], [------, - -]), vector([- 1, 4], [------, - -]), 
+                    6       6                        6       6
+                  cos(5)    1                      cos(6)    1
+vector([- 1, 5], [------, - -]), vector([- 1, 6], [------, - -]), 
+                    6       6                        6       6
+                  cos(6)                         cos(5)
+vector([0, - 6], [------, 0]), vector([0, - 5], [------, 0]), 
+                    6                              6
+                  cos(4)                         cos(3)
+vector([0, - 4], [------, 0]), vector([0, - 3], [------, 0]), 
+                    6                              6
+                  cos(2)                         cos(1)
+vector([0, - 2], [------, 0]), vector([0, - 1], [------, 0]), 
+                    6                              6
+                1                       cos(1)
+vector([0, 0], [-, 0]), vector([0, 1], [------, 0]), 
+                6                         6
+                cos(2)                       cos(3)
+vector([0, 2], [------, 0]), vector([0, 3], [------, 0]), 
+                  6                            6
+                cos(4)                       cos(5)
+vector([0, 4], [------, 0]), vector([0, 5], [------, 0]), 
+                  6                            6
+                cos(6)                         cos(6)  1
+vector([0, 6], [------, 0]), vector([1, - 6], [------, -]), 
+                  6                              6     6
+                  cos(5)  1                      cos(4)  1
+vector([1, - 5], [------, -]), vector([1, - 4], [------, -]), 
+                    6     6                        6     6
+                  cos(3)  1                      cos(2)  1
+vector([1, - 3], [------, -]), vector([1, - 2], [------, -]), 
+                    6     6                        6     6
+                  cos(1)  1                    1  1
+vector([1, - 1], [------, -]), vector([1, 0], [-, -]), 
+                    6     6                    6  6
+                cos(1)  1                    cos(2)  1
+vector([1, 1], [------, -]), vector([1, 2], [------, -]), 
+                  6     6                      6     6
+                cos(3)  1                    cos(4)  1
+vector([1, 3], [------, -]), vector([1, 4], [------, -]), 
+                  6     6                      6     6
+                cos(5)  1                    cos(6)  1
+vector([1, 5], [------, -]), vector([1, 6], [------, -]), 
+                  6     6                      6     6
+                  cos(6)  1                      cos(5)  1
+vector([2, - 6], [------, -]), vector([2, - 5], [------, -]), 
+                    6     3                        6     3
+                  cos(4)  1                      cos(3)  1
+vector([2, - 4], [------, -]), vector([2, - 3], [------, -]), 
+                    6     3                        6     3
+                  cos(2)  1                      cos(1)  1
+vector([2, - 2], [------, -]), vector([2, - 1], [------, -]), 
+                    6     3                        6     3
+                1  1                    cos(1)  1
+vector([2, 0], [-, -]), vector([2, 1], [------, -]), 
+                6  3                      6     3
+                cos(2)  1                    cos(3)  1
+vector([2, 2], [------, -]), vector([2, 3], [------, -]), 
+                  6     3                      6     3
+                cos(4)  1                    cos(5)  1
+vector([2, 4], [------, -]), vector([2, 5], [------, -]), 
+                  6     3                      6     3
+                cos(6)  1                      cos(6)  1
+vector([2, 6], [------, -]), vector([3, - 6], [------, -]), 
+                  6     3                        6     2
+                  cos(5)  1                      cos(4)  1
+vector([3, - 5], [------, -]), vector([3, - 4], [------, -]), 
+                    6     2                        6     2
+                  cos(3)  1                      cos(2)  1
+vector([3, - 3], [------, -]), vector([3, - 2], [------, -]), 
+                    6     2                        6     2
+                  cos(1)  1                    1  1
+vector([3, - 1], [------, -]), vector([3, 0], [-, -]), 
+                    6     2                    6  2
+                cos(1)  1                    cos(2)  1
+vector([3, 1], [------, -]), vector([3, 2], [------, -]), 
+                  6     2                      6     2
+                cos(3)  1                    cos(4)  1
+vector([3, 3], [------, -]), vector([3, 4], [------, -]), 
+                  6     2                      6     2
+                cos(5)  1                    cos(6)  1
+vector([3, 5], [------, -]), vector([3, 6], [------, -]), 
+                  6     2                      6     2
+                  cos(6)  2                      cos(5)  2
+vector([4, - 6], [------, -]), vector([4, - 5], [------, -]), 
+                    6     3                        6     3
+                  cos(4)  2                      cos(3)  2
+vector([4, - 4], [------, -]), vector([4, - 3], [------, -]), 
+                    6     3                        6     3
+                  cos(2)  2                      cos(1)  2
+vector([4, - 2], [------, -]), vector([4, - 1], [------, -]), 
+                    6     3                        6     3
+                1  2                    cos(1)  2
+vector([4, 0], [-, -]), vector([4, 1], [------, -]), 
+                6  3                      6     3
+                cos(2)  2                    cos(3)  2
+vector([4, 2], [------, -]), vector([4, 3], [------, -]), 
+                  6     3                      6     3
+                cos(4)  2                    cos(5)  2
+vector([4, 4], [------, -]), vector([4, 5], [------, -]), 
+                  6     3                      6     3
+                cos(6)  2                      cos(6)  5
+vector([4, 6], [------, -]), vector([5, - 6], [------, -]), 
+                  6     3                        6     6
+                  cos(5)  5                      cos(4)  5
+vector([5, - 5], [------, -]), vector([5, - 4], [------, -]), 
+                    6     6                        6     6
+                  cos(3)  5                      cos(2)  5
+vector([5, - 3], [------, -]), vector([5, - 2], [------, -]), 
+                    6     6                        6     6
+                  cos(1)  5                    1  5
+vector([5, - 1], [------, -]), vector([5, 0], [-, -]), 
+                    6     6                    6  6
+                cos(1)  5                    cos(2)  5
+vector([5, 1], [------, -]), vector([5, 2], [------, -]), 
+                  6     6                      6     6
+                cos(3)  5                    cos(4)  5
+vector([5, 3], [------, -]), vector([5, 4], [------, -]), 
+                  6     6                      6     6
+                cos(5)  5                    cos(6)  5
+vector([5, 5], [------, -]), vector([5, 6], [------, -]), 
+                  6     6                      6     6
+                  cos(6)                         cos(5)
+vector([6, - 6], [------, 1]), vector([6, - 5], [------, 1]), 
+                    6                              6
+                  cos(4)                         cos(3)
+vector([6, - 4], [------, 1]), vector([6, - 3], [------, 1]), 
+                    6                              6
+                  cos(2)                         cos(1)
+vector([6, - 2], [------, 1]), vector([6, - 1], [------, 1]), 
+                    6                              6
+                1                       cos(1)
+vector([6, 0], [-, 1]), vector([6, 1], [------, 1]), 
+                6                         6
+                cos(2)                       cos(3)
+vector([6, 2], [------, 1]), vector([6, 3], [------, 1]), 
+                  6                            6
+                cos(4)                       cos(5)
+vector([6, 4], [------, 1]), vector([6, 5], [------, 1]), 
+                  6                            6
+                cos(6)
+vector([6, 6], [------, 1])]
+                  6
+(%i7) apply(draw2d,append([color=magenta],vect2));
+(%o7) [gr2d(vector, vector, vector, vector, vector, vector, vector, vector, 
+vector, vector, vector, vector, vector, vector, vector, vector, vector, 
+vector, vector, vector, vector, vector, vector, vector, vector, vector, 
+vector, vector, vector, vector, vector, vector, vector, vector, vector, 
+vector, vector, vector, vector, vector, vector, vector, vector, vector, 
+vector, vector, vector, vector, vector, vector, vector, vector, vector, 
+vector, vector, vector, vector, vector, vector, vector, vector, vector, 
+vector, vector, vector, vector, vector, vector, vector, vector, vector, 
+vector, vector, vector, vector, vector, vector, vector, vector, vector, 
+vector, vector, vector, vector, vector, vector, vector, vector, vector, 
+vector, vector, vector, vector, vector, vector, vector, vector, vector, 
+vector, vector, vector, vector, vector, vector, vector, vector, vector, 
+vector, vector, vector, vector, vector, vector, vector, vector, vector, 
+vector, vector, vector, vector, vector, vector, vector, vector, vector, 
+vector, vector, vector, vector, vector, vector, vector, vector, vector, 
+vector, vector, vector, vector, vector, vector, vector, vector, vector, 
+vector, vector, vector, vector, vector, vector, vector, vector, vector, 
+vector, vector, vector, vector, vector, vector, vector, vector, vector, 
+vector, vector, vector, vector, vector, vector, vector, vector)]
+(%i8) 
+\end{verbatim}
+
+\subsection{Integrales de línea}
+Aquí pudimos ver como resolver integrales de línea con respecto a la longitud de arco: 
+
+\begin{verbatim}
+(%i1) f(x,y):= x^2 + y^2;
+                                          2    2
+(%o1)                         f(x, y) := x  + y
+(%i2) [x,y]: [cos(t), sin(2*t)];
+(%o2)                         [cos(t), sin(2 t)]
+(%i3) rp: diff([x,y], t);
+(%o3)                       [- sin(t), 2 cos(2 t)]
+(%i4) romberg(f(x,y)*sqrt(rp.rp),t,0,1);
+(%o4)                          1.635879048260743
+(%i5) 
+\end{verbatim}
+
+\subsection{Campos vectoriales conservativos y Potenciales escalares}
+Aquí calculamos el rotacional de un campo gradiente para saber si es o no es conservativo:
+
+\begin{verbatim}
+(%i1) F(x,y) := [3*x^3 - 6*y^2, 3*y^3-5*x];
+                                    3      2     3
+(%o1)                F(x, y) := [3 x  - 6 y , 3 y  - 5 x]
+(%i2) load(vect);
+(%o2)           /usr/share/maxima/5.21.1/share/vector/vect.mac
+(%i3) scalefactors([x,y]);
+(%o3)                                done
+(%i4) curl(F(x,y));
+                                 3      2     3
+(%o4)                   curl [3 x  - 6 y , 3 y  - 5 x]
+(%i5) express(curl(F(x,y)));
+                      d      3          d      3      2
+(%o5)                 -- (3 y  - 5 x) - -- (3 x  - 6 y )
+                      dx                dy
+(%i6) ev(express(curl(F(x,y))), diff);
+(%o6)                              12 y - 5
+(%i7) 
+\end{verbatim}
+
+
+
+
 \section*{Conclusiones}
-Esta actividad, como todas las anteriores, se me hizo de gran interes, no solo por que ahora sabemos como graficar espacios fase en $Python$, si no por que en un futuro será de gran ayuda.
+Esta fue una actividad muy larga, pero de gran ayuda para el futuro, ya que fue un tutorial de como utilizar Maxima, que es una gran herramienta matématica.
 
 \begin{thebibliography}{widestlabel}
       \bibitem{1} Wikipedia, \emph{Maxima}, (2016, 01 de Abril).Desde: \url{https://es.wikipedia.org/wiki/Maxima}
+      \bibitem{2} gkerns, \emph{Multivariable Calculus with Maxima}, (2016, 01 de Abril).Desde: \url{http://gkerns.people.ysu.edu/maxima/maximaintro/}
 \end{thebibliography}
 
 
