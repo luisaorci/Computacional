@@ -29,70 +29,55 @@ Para realizar esta actividad, se nos proporcionó un código ejemplo de $Lotka-V
 El código final fue el siguiente:
 \begin{verbatim}
 #PAQUETES
-
 import numpy as gatito
 import matplotlib.pyplot as plt
 from scipy.integrate import odeint
 
 #CONSTANTES
 
-g = 9.81
+g = 9.8
 l = 1.0
 b = 0.0 
 c = g/l
 
-
 #CONDICIONES INICIALES
-
-X_f1 = gatito.array([-3*gatito.pi,gatito.pi])
-X_f2 = gatito.array([-gatito.pi,gatito.pi])
-t = gatito.linspace(0,20,300)
-
-
-
-#ECUACION
-
+X_f1 = gatito.array([-4.0*gatito.pi,4.0*gatito.pi])
+X_f2 = gatito.array([-2.0*gatito.pi,-0.0*gatito.pi]) 
+t = gatito.linspace(-0.0*gatito.pi,5.0*gatito.pi,500) 
+#Definimos la ecuacion diferencial del pendulo
 def p (y, t, b, c):
     theta, omega = y
     dy_dt = [omega,-b*omega -c*gatito.sin(theta)]
     return dy_dt
 
-#FORMATIUX
+#COLOR Y NUMERO DE PUNTOS
 
-values  = gatito.linspace(-1.0,1.0,25)       
-# position of X0 between X_f0 and X_f1
-vcolors = plt.cm.winter_r(gatito.linspace(0.5, 1.0, len(values)))  
-# colors for each trajectory
-
+values  = gatito.linspace(-1.0,1.0,100) #Numero de puntos             
+vcolors = plt.cm.winter_r(gatito.linspace(0.5, 1.0, len(values)))#Color
 plt.figure(2)
 
-
+# TRAYECTORIA 1
 for v, col in zip(values, vcolors):
     y0 = v * X_f1                              
     
- X = odeint(p, y0, t, args=(b,c))         
- plt.plot( X[:,0], X[:,1], lw=3.5*v, color=col, label='X0=(%.f, %.f)' 
- % ( y0[0], y0[1]) )
+    X = odeint(p, y0, t, args=(b,c))         
+    plt.plot( X[:,0], X[:,1], lw=3.5*v, color=col, 
+    label='X0=(%.f, %.f)' % ( y0[0], y0[1]) )
 
-                              
+#Definimos la trayectoria 1
 for v, col in zip(values, vcolors):
- y1 = v * X_f2                           
- X1 = odeint(p, y1, t, args=(b,c))           
- plt.plot( X1[:,0], X1[:,1], lw=3.5*v, color=col, label='X0=(%.f, %.f)'
- % ( y1[0], y1[1]) )
+    y1 = v * X_f2                           
+    X1 = odeint(p, y1, t, args=(b,c))           
+    plt.plot( X1[:,0], X1[:,1], lw=3.5*v, color=col, 
+    label='X0=(%.f, %.f)' % ( y1[0], y1[1]) )
 
-
-
-#GRAFICA <3
-
+#Grafica
 plt.title('Trayectorias')
 plt.xlabel('Angulo')
 plt.ylabel('Velocidad Angular')
 plt.grid()
 plt.xlim(-2.0*gatito.pi,2.0*gatito.pi)
-plt.ylim(-12,12)
-
-
+plt.ylim(-10,10)
 plt.show()
 \end{verbatim}
 
