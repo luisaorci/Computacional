@@ -1,0 +1,43 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 11.08.0 ] */
+
+/* [wxMaxima: input   start ] */
+/* Funcion L que depende de un parametro k */
+
+L1(k) := 1/sqrt(1-(k*sin(u))**2);
+
+/* Desarrollo por Taylor*/
+
+taylor(1/sqrt(1-k^2*sin(u)^2),u,0,8);
+
+/* Definimos otra funcion L2*/
+
+define(L2(k), %);
+
+/* Seno del angulo theta  */
+
+define(x(%theta), sin(%theta));
+
+/* Integral de L2(k) de cero a 90 grados */
+
+expand(integrate(K2(k),u,0,%pi/2));
+
+/* Sustituimos en la integral anterior el seno de theta */
+
+subst(x(%theta/2), k, %);
+
+/* Factorizamos pi/2 */
+
+% *2/%pi;
+
+/* Definimos ahora una funcion L que depende solo del angulo theta */
+
+define(L(%theta),expand(%));
+
+/* Definimos la funcion*/
+
+define(T(%theta),(2*%pi)*sqrt(l/g)*(F(%theta)));
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$
